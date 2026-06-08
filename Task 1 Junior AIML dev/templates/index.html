@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MIRA – Health Prediction System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0b0f1a;
+    --surface:  #111827;
+    --card:     #161f30;
+    --border:   #1e2d45;
+    --accent:   #3b82f6;
+    --accent2:  #06b6d4;
+    --green:    #10b981;
+    --red:      #ef4444;
+    --amber:    #f59e0b;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --serif:    'DM Serif Display', serif;
+    --sans:     'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Background mesh ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 0%, rgba(59,130,246,.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 100%, rgba(6,182,212,.10) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; gap: 1.2rem;
+    padding: 1.4rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(11,15,26,.85);
+    backdrop-filter: blur(12px);
+  }
+  .logo-mark {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: grid; place-items: center; font-size: 1.3rem; flex-shrink: 0;
+  }
+  .brand h1 { font-family: var(--serif); font-size: 1.45rem; letter-spacing: .02em; }
+  .brand p  { font-size: .72rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-top: 1px; }
+  .header-stats {
+    margin-left: auto; display: flex; gap: 2rem;
+  }
+  .stat { text-align: right; }
+  .stat-val { font-size: 1.35rem; font-weight: 600; color: var(--accent); }
+  .stat-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+  /* ── Layout ── */
+  main {
+    position: relative; z-index: 1;
+    max-width: 1400px; margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 1.8rem;
+    align-items: start;
+  }
+
+  /* ── Panel ── */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-title {
+    font-family: var(--serif); font-size: 1.05rem; font-style: italic;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .panel-body { padding: 1.5rem; }
+
+  /* ── Form ── */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  .field { margin-bottom: .9rem; }
+  label { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .35rem; }
+  input {
+    width: 100%; padding: .6rem .85rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: var(--sans); font-size: .88rem;
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+  }
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
+  input.error { border-color: var(--red); }
+
+  .blood-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .8rem; margin-bottom: .9rem; }
+  .blood-field label { color: var(--accent2); }
+
+  .error-list { margin-bottom: 1rem; padding: .7rem .9rem; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.3); border-radius: 8px; font-size: .8rem; color: #fca5a5; }
+  .error-list li { margin-left: 1rem; margin-top: .2rem; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+    padding: .65rem 1.3rem; border-radius: 9px; font-family: var(--sans);
+    font-size: .85rem; font-weight: 600; cursor: pointer; border: none;
+    transition: all .2s; letter-spacing: .02em;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #2563eb);
+    color: #fff; width: 100%; padding: .75rem;
+    box-shadow: 0 4px 15px rgba(59,130,246,.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,130,246,.45); }
+  .btn-primary:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); font-size: .78rem; padding: .4rem .85rem; }
+  .btn-ghost:hover { background: var(--surface); color: var(--text); }
+  .btn-danger { background: rgba(239,68,68,.12); color: #fca5a5; border: 1px solid rgba(239,68,68,.25); }
+  .btn-danger:hover { background: rgba(239,68,68,.2); }
+  .btn-edit { background: rgba(59,130,246,.12); color: #93c5fd; border: 1px solid rgba(59,130,246,.25); }
+  .btn-edit:hover { background: rgba(59,130,246,.22); }
+
+  /* ── Search ── */
+  .search-bar {
+    position: relative;
+    margin-bottom: 1.2rem;
+  }
+  .search-bar input { padding-left: 2.5rem; }
+  .search-icon { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+  th {
+    padding: .7rem 1rem; text-align: left;
+    font-size: .67rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .08em;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  td { padding: .75rem 1rem; border-bottom: 1px solid rgba(30,45,69,.5); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(59,130,246,.04); }
+
+  .name-cell { font-weight: 600; color: var(--text); }
+  .email-cell { color: var(--muted); font-size: .78rem; }
+  .badge {
+    display: inline-block; padding: .2rem .6rem; border-radius: 99px;
+    font-size: .68rem; font-weight: 700; letter-spacing: .04em;
+  }
+  .badge-green { background: rgba(16,185,129,.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,.2); }
+  .badge-amber { background: rgba(245,158,11,.12); color: #fcd34d; border: 1px solid rgba(245,158,11,.2); }
+  .badge-red   { background: rgba(239,68,68,.12);  color: #fca5a5; border: 1px solid rgba(239,68,68,.2); }
+
+  .remarks-cell { max-width: 260px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+  .actions-cell { display: flex; gap: .4rem; flex-shrink: 0; }
+
+  .empty-state {
+    text-align: center; padding: 4rem 1rem; color: var(--muted);
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: .8rem; }
+
+  /* ── Spinner ── */
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,.25); border-top-color: #fff;
+    border-radius: 50%; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--surface); border: 1px solid var(--border);
+    padding: .75rem 1.5rem; border-radius: 10px; font-size: .85rem;
+    opacity: 0; transition: all .3s; z-index: 999; pointer-events: none;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.success { border-color: var(--green); color: #6ee7b7; }
+  #toast.error   { border-color: var(--red); color: #fca5a5; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.65); backdrop-filter: blur(4px);
+    place-items: center;
+  }
+  .modal-overlay.active { display: grid; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 2rem; width: 90%; max-width: 500px;
+    animation: modalIn .25s ease;
+  }
+  @keyframes modalIn { from { transform: scale(.95); opacity: 0; } }
+  .modal h2 { font-family: var(--serif); margin-bottom: .5rem; font-size: 1.2rem; }
+  .modal p { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; }
+  .modal-actions { display: flex; gap: .8rem; justify-content: flex-end; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+    .header-stats { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo-mark">🏥</div>
+  <div class="brand">
+    <h1>MIRA</h1>
+    <p>Medical Intelligence · Health Prediction</p>
+  </div>
+  <div class="header-stats">
+    <div class="stat">
+      <div class="stat-val" id="stat-total">0</div>
+      <div class="stat-label">Patients</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ── Form Panel ── -->
+  <div class="panel" style="position:sticky;top:1.5rem;">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span id="form-icon">✦</span>
+        <span id="form-title">New Patient Record</span>
+      </div>
+      <button class="btn btn-ghost" id="btn-cancel" style="display:none" onclick="resetForm()">Cancel</button>
+    </div>
+    <div class="panel-body">
+      <div id="error-list" class="error-list" style="display:none"><ul></ul></div>
+
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="f-name" placeholder="e.g. Janvi Malve" />
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Date of Birth</label>
+          <input type="date" id="f-dob" />
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="f-email" placeholder="name@email.com" />
+        </div>
+      </div>
+
+      <div style="margin:.4rem 0 .6rem; font-size:.72rem; font-weight:700; color:var(--accent2); text-transform:uppercase; letter-spacing:.08em;">Blood Test Values</div>
+      <div class="blood-grid">
+        <div>
+          <label>Glucose <span style="color:var(--muted);font-size:.65rem">(mg/dL)</span></label>
+          <input type="number" id="f-glucose" placeholder="85" step="0.1" min="0" />
+        </div>
+        <div>
+          <label>Haemoglobin <span style="color:var(--muted);font-size:.65rem">(g/dL)</span></label>
+          <input type="number" id="f-haemoglobin" placeholder="13.5" step="0.1" min="0" />
+        </div>
+        <div>
+          <label>Cholesterol <span style="color:var(--muted);font-size:.65rem">(mg/dL)</span></label>
+          <input type="number" id="f-cholesterol" placeholder="190" step="0.1" min="0" />
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="btn-submit" onclick="submitForm()">
+        <span id="btn-text">✦ Generate AI Prediction & Save</span>
+        <span id="btn-spinner" class="spinner" style="display:none"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Table Panel ── -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">📋 Patient Records</div>
+    </div>
+    <div class="panel-body" style="padding-bottom:.5rem">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search" placeholder="Search by name or email…" oninput="searchPatients(this.value)" />
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>DOB</th>
+              <th>Blood Values</th>
+              <th>AI Remarks</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr><td colspan="5" class="empty-state"><div class="empty-icon">🩺</div><div>Loading patient records…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Delete confirm modal -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h2>Delete Patient Record?</h2>
+    <p>This action cannot be undone. The patient data and AI-generated remarks will be permanently removed.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn btn-danger" id="btn-confirm-delete" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let editingId = null;
+let deleteTargetId = null;
+
+// ── Utilities ───────────────────────────────────────────────────
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3000);
+}
+
+function setLoading(on) {
+  document.getElementById('btn-submit').disabled = on;
+  document.getElementById('btn-text').style.display = on ? 'none' : 'inline';
+  document.getElementById('btn-spinner').style.display = on ? 'inline-block' : 'none';
+}
+
+function riskBadge(remarks='') {
+  const r = remarks.toLowerCase();
+  if (r.includes('normal') || r.includes('within') || r.includes('no immediate')) return ['badge-green','✓ Normal'];
+  if (r.includes('diabetes') || r.includes('anaemia') || r.includes('high cholesterol') || r.includes('cardiovascular')) return ['badge-red','⚠ High Risk'];
+  return ['badge-amber','⚡ Review'];
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// ── Render table ────────────────────────────────────────────────
+function renderTable(patients) {
+  document.getElementById('stat-total').textContent = patients.length;
+  const tbody = document.getElementById('table-body');
+  if (!patients.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="empty-icon">🩺</div><div>No patient records found.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = patients.map(p => {
+    const [cls, label] = riskBadge(p.remarks);
+    return `
+      <tr>
+        <td>
+          <div class="name-cell">${esc(p.full_name)}</div>
+          <div class="email-cell">${esc(p.email)}</div>
+        </td>
+        <td>${formatDate(p.dob)}</td>
+        <td style="font-size:.78rem;line-height:1.8">
+          🩸 Glucose: <strong>${p.glucose}</strong><br>
+          💉 Hb: <strong>${p.haemoglobin}</strong><br>
+          🫀 Chol: <strong>${p.cholesterol}</strong>
+        </td>
+        <td>
+          <span class="badge ${cls}" style="margin-bottom:.4rem;display:inline-block">${label}</span>
+          <div class="remarks-cell">${esc(p.remarks || 'Pending…')}</div>
+        </td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn btn-edit" data-id="${p.id}" onclick="editPatient(parseInt(this.dataset.id))">✏ Edit</button>
+            <button class="btn btn-danger" data-id="${p.id}" onclick="openDeleteModal(parseInt(this.dataset.id))">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function esc(s='') {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Fetch ───────────────────────────────────────────────────────
+async function loadPatients(q='') {
+  const res = await fetch(`/api/patients?q=${encodeURIComponent(q)}`);
+  const data = await res.json();
+  renderTable(data);
+}
+
+function searchPatients(q) { loadPatients(q); }
+
+// ── Form ────────────────────────────────────────────────────────
+function getFormData() {
+  return {
+    full_name:    document.getElementById('f-name').value.trim(),
+    dob:          document.getElementById('f-dob').value,
+    email:        document.getElementById('f-email').value.trim(),
+    glucose:      document.getElementById('f-glucose').value,
+    haemoglobin:  document.getElementById('f-haemoglobin').value,
+    cholesterol:  document.getElementById('f-cholesterol').value,
+  };
+}
+
+function showErrors(errors) {
+  const el = document.getElementById('error-list');
+  el.style.display = 'block';
+  el.querySelector('ul').innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+}
+
+function clearErrors() {
+  const el = document.getElementById('error-list');
+  el.style.display = 'none';
+}
+
+function resetForm() {
+  editingId = null;
+  ['f-name','f-dob','f-email','f-glucose','f-haemoglobin','f-cholesterol']
+    .forEach(id => document.getElementById(id).value = '');
+  clearErrors();
+  document.getElementById('form-title').textContent = 'New Patient Record';
+  document.getElementById('form-icon').textContent = '✦';
+  document.getElementById('btn-text').textContent = '✦ Generate AI Prediction & Save';
+  document.getElementById('btn-cancel').style.display = 'none';
+}
+
+async function submitForm() {
+  clearErrors();
+  const data = getFormData();
+  setLoading(true);
+  try {
+    const url = editingId ? `/api/patients/${editingId}` : '/api/patients';
+    const method = editingId ? 'PUT' : 'POST';
+    const res = await fetch(url, {
+      method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    if (!res.ok) { showErrors(json.errors || [json.error]); return; }
+    toast(editingId ? '✓ Patient record updated' : '✓ Patient saved with AI prediction');
+    resetForm();
+    loadPatients();
+  } catch(e) {
+    toast('Network error. Please try again.', 'error');
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function editPatient(id) {
+  const res = await fetch(`/api/patients/${id}`);
+  const p = await res.json();
+  editingId = id;
+  document.getElementById('f-name').value        = p.full_name;
+  document.getElementById('f-dob').value          = p.dob;
+  document.getElementById('f-email').value        = p.email;
+  document.getElementById('f-glucose').value      = p.glucose;
+  document.getElementById('f-haemoglobin').value  = p.haemoglobin;
+  document.getElementById('f-cholesterol').value  = p.cholesterol;
+  document.getElementById('form-title').textContent = 'Edit Patient Record';
+  document.getElementById('form-icon').textContent  = '✏';
+  document.getElementById('btn-text').textContent   = '✦ Update & Re-run AI Prediction';
+  document.getElementById('btn-cancel').style.display = 'inline-flex';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Delete ──────────────────────────────────────────────────────
+function openDeleteModal(id) { deleteTargetId = id; document.getElementById('delete-modal').classList.add('active'); }
+function closeDeleteModal() { deleteTargetId = null; document.getElementById('delete-modal').classList.remove('active'); }
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+  closeDeleteModal();
+  const res = await fetch(`/api/patients/${deleteTargetId}`, { method: 'DELETE' });
+  if (res.ok) { toast('✓ Patient record deleted'); loadPatients(); }
+  else toast('Delete failed', 'error');
+}
+
+// ── Init ────────────────────────────────────────────────────────
+loadPatients();
+</script>
+</body>
+</html>
